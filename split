@@ -1,0 +1,40 @@
+import os
+
+def split_file(input_file, chunk_size=25 * 1024 * 1024):
+    """拆分文件，每个部分大于24MB"""
+    with open(input_file, 'rb') as f:
+        part_num = 0
+        while True:
+            data = f.read(chunk_size)
+            if not data:
+                break
+            part_num += 1
+            part_file = f"{input_file}.part{part_num}"
+            with open(part_file, 'wb') as part:
+                part.write(data)
+    print(f"拆分完成，共{part_num}个部分。")
+
+def merge_files(output_file, input_file):
+    """合并拆分的文件"""
+    part_num = 1
+    with open(output_file, 'wb') as out_file:
+        while True:
+            part_file = f"{input_file}.part{part_num}"
+            if not os.path.exists(part_file):
+                break
+            with open(part_file, 'rb') as part:
+                out_file.write(part.read())
+            part_num += 1
+    print(f"合并完成，输出文件: {output_file}")
+
+if __name__ == "__main__":
+    mode = input("选择模式 (split/merge): ").strip().lower()
+    if mode == "split":
+        input_file = input("输入要拆分的文件路径: ").strip()
+        split_file(input_file)
+    elif mode == "merge":
+        input_file = input("输入拆分文件的原始文件名: ").strip()
+        output_file = input("输入合并后的文件名: ").strip()
+        merge_files(output_file, input_file)
+    else:
+        print("无效模式，请选择 'split' 或 'merge'。")
